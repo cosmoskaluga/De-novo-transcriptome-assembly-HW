@@ -17,7 +17,7 @@ conda activate trinity
 ```
 
 ## Read filtering
-Befor we start with assembly, it worth to remove adapters and low-quality reads from the raw .fastq files. To do this, we will run `TrimGalore`: 
+Befor we start with assembly, it worth to remove adapters and low-quality reads from the raw .fastq files. To do this, we will run `TrimGalore` tool: 
 
 ``` bash
 trim_galore --cores 2 --paired --gzip --fastqc --fastqc_args "-t 2" --output_dir data_filtered data/1.R1.fq.gz data/1.R2.fq.gz
@@ -29,8 +29,11 @@ trim_galore --cores 2 --paired --gzip --fastqc --fastqc_args "-t 2" --output_dir
 This is the most crucial and time consuming step in the analysis.
 
 ``` bash
-Trinity --seqType fq --max_memory 2G --left data_filtered/<your_number>.R1_val_1.fq.gz --right data_filtered/<your_number>.R2_val_2.fq.gz --CPU 2
+Trinity --seqType fq --SS_lib_type RF --max_memory 2G --left data_filtered/<your_number>.R1_val_1.fq.gz --right data_filtered/<your_number>.R2_val_2.fq.gz --CPU 2
 ```
+where `--SS_lib_type RF` means that the library preparation was done with a first strand protocol (we know that from the original paper)
+
+
 
 
 ## Obtain assembly statistics
@@ -39,11 +42,63 @@ Trinity --seqType fq --max_memory 2G --left data_filtered/<your_number>.R1_val_1
 TrinityStats.pl  Trinity.fasta
 ```
 
+## Transcript filtering
+
+``` bash
+cd-hit-est -o cdhit -c 0.98 -i trinity_out_dir/Trinity.fasta -p 1 -d 0 -b 3 -T 2 -M 1000
+```
+
+After filtering new filtered assembly will be stored in 'cdhit' file. Rename it to avoid confusion: 
+``` bash
+mv cdhit Trinity.filtered.fasta
+```
+
+Run QC script on filtered assembly:
+``` bash
+TrinityStats.pl  Trinity.filtered.fasta
+```
+
+## Assembly completeness with gVolante
+
+
+
 ## Transcript quantification
+``` bash
+align_and_estimate_abundance.pl --SS_lib_type RF --est_method kallisto --transcripts Trinity.filtered.fasta --seqType fq --left data_filtered/<your_number>.R1_val_1.fq.gz --right data_filtered/<your_number>.R2_val_2.fq.gz --output_dir kallisto_output --thread_count 2 --trinity_mode --prep_reference
+```
+Apart from *kallisto_output* folder it will also generate two additional files:
+Trinity.filtered.fasta.gene_trans_map  
+Trinity.filtered.fasta.kallisto_idx
 
 
 ## Transcript annotation
+``` bash
+Build_Trinotate_Boilerplate_SQLite_db.pl  Trinotate
+```
 
+``` bash
+makeblastdb -in uniprot_sprot.pep -dbtype prot
+```
+
+``` bash
+gunzip Pfam-A.hmm.gz
+hmmpress Pfam-A.hmm
+```
+
+``` bash
+TransDecoder.LongOrfs -m 10 -t Trinity.filtered.fasta
+```
+
+``` bash
+blastx -query Trinity.filtered.fasta -db uniprot_sprot.pep -num_threads 2 -max_target_seqs 1 -outfmt 6 > blastx.outfmt6
+```
+
+
+
+
+## References
+[1] https://github.com/trinityrnaseq/trinityrnaseq/wiki
+[2] https://github.com/Trinotate/Trinotate/wiki/Software-installation-and-data-required
 
 ## Assignment and grading
 
