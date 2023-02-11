@@ -61,6 +61,10 @@ TrinityStats.pl  Trinity.filtered.fasta
 ## Assembly completeness with gVolante
 
 
+![**Figure 1**. Uploading an assembly to gVolante](gVolante1.png)
+
+![**Figure 2**. Setting up ortholog database to search in](gVolante2.png)
+
 
 ## Transcript quantification
 ``` bash
@@ -93,11 +97,38 @@ TransDecoder.LongOrfs -m 10 -t Trinity.filtered.fasta
 blastx -query Trinity.filtered.fasta -db uniprot_sprot.pep -num_threads 2 -max_target_seqs 1 -outfmt 6 > blastx.outfmt6
 ```
 
+``` bash
+blastp -query Trinity.filtered.fasta.transdecoder_dir/longest_orfs.pep -db uniprot_sprot.pep -num_threads 2 -max_target_seqs 1 -outfmt 6 > blastp.outfmt6
+```
 
+
+``` bash
+hmmscan --cpu 8 --domtblout TrinotatePFAM.out Pfam-A.hmm Trinity.filtered.fasta.transdecoder_dir/longest_orfs.pep > pfam.log
+```
+
+Once all three searches are done, we can start uploading information to `Trinotate.sqlite` database:
+``` bash
+Trinotate Trinotate.sqlite init --gene_trans_map Trinity.filtered.fasta.gene_trans_map \
+                                --transcript_fasta Trinity.filtered.fasta \
+                                --transdecoder_pep Trinity.filtered.fasta.transdecoder_dir/longest_orfs.pep
+```
+
+Load blastp, blastx and pfam results
+``` bash
+Trinotate Trinotate.sqlite LOAD_swissprot_blastp blastp.outfmt6
+Trinotate Trinotate.sqlite LOAD_swissprot_blastx blastx.outfmt6
+Trinotate Trinotate.sqlite LOAD_pfam TrinotatePFAM.out
+```
+
+Generate the report:
+``` bash
+Trinotate Trinotate.sqlite report > trinotate_annotation_report.xls
+```
 
 
 ## References
 [1] https://github.com/trinityrnaseq/trinityrnaseq/wiki
+
 [2] https://github.com/Trinotate/Trinotate/wiki/Software-installation-and-data-required
 
 ## Assignment and grading
