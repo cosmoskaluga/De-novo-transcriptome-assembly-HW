@@ -1,15 +1,17 @@
 # De-Novo transcriptome assembly
+![**Figure 1**. *Rana Amurensis*](rana-amurensis.webp)
 
-During this lesson we will reconstruct transcriptome assembly for *Heilongjiang brown frog (Rana amurensis)* using RNA-seq data obtained from [https://www.nature.com/articles/s41598-022-24631-6#data-availability](https://www.nature.com/articles/s41598-022-24631-6#data-availability). We already downloaded raw .fastq files and prepared subsets of reads for you. They are available here:
-`/home/d.smirnov/homework5/data/`
+During this lesson we will reconstruct transcriptome assembly for *Heilongjiang brown frog (Rana amurensis)* using RNA-seq data obtained from [https://www.nature.com/articles/s41598-022-24631-6#data-availability](https://www.nature.com/articles/s41598-022-24631-6#data-availability). We already downloaded pair-end raw .fastq files and prepared small toy datasets for you. Each pair of files (R1 and R2) constists of ~1700000 reads derived from heart, liver or muscle.
 
-In the `data` you will find your individual paired-end fastq files, `<your_number>.R1.fq.gz` and `<your_number>.R2.fq.gz`.
+First, choose your invidual dataset here:
+``` bash
+https://docs.google.com/document/d/1aGLb3qV1N6Yxay0-QjzlTtZWk7JfUZYYd7drZeu7dtk/edit?usp=sharing
+```
 
-Please do not copy files to your directory and do not use more than two computational cores for this tasks!
-
+Once you decided upon dataset to work with, you can find your paired-end fastq files, named `<your_number>.R1.fq.gz` and `<your_number>.R2.fq.gz` in `/home/d.smirnov/homework5/data/`. Please do not copy them to your home directory, in all steps below you should simply specify the correct path to these files.
 
 ## Set up conda environment
-We will activate `trinity` environment with all required tools preinstalled.
+Activate `trinity` environment with all required tools pre-installed.
 
 ``` bash
 /opt/anaconda3/bin/conda init 
@@ -17,12 +19,12 @@ conda activate trinity
 ```
 
 ## Read filtering
-Befor we start with assembly, it worth to remove adapters and low-quality reads from the raw .fastq files. To do this, we will run `TrimGalore` tool: 
+The first step is to remove adapters and low-quality reads from the raw .fastq files. To do this, run `TrimGalore` tool: 
 
 ``` bash
 trim_galore --cores 2 --paired --gzip --fastqc --fastqc_args "-t 2" --output_dir data_filtered data/1.R1.fq.gz data/1.R2.fq.gz
 ```
-`--fastqc` argument means that we also want to perform quality assesement of filtered reads via `FastQC` using two computational cores (as specified by `--fastqc_args "-t 2"`).
+where `--fastqc` argument means that we also want to perform quality assesement of filtered reads via `FastQC` using two computational cores (as specified by `--fastqc_args "-t 2"`).
 
 
 ## Run Trinity
@@ -65,11 +67,11 @@ To assess completeness of the obtained assembly we will use `gVolante` web tool.
 
 Upload your .fasta file, it may take few minutes:
 
-![**Figure 1**. Uploading an assembly to gVolante](gVolante1.png)
+![**Figure 2**. Uploading an assembly to gVolante](gVolante1.png)
 
 Select `Coding/transcribed (nucleotide)` sequence type and `BUSCO v5` as a pipeline to use. Select "Tetrapoda" as an ortholog set for `BUSCO v5`.
 
-![**Figure 2**. Setting up ortholog database to search in](gVolante2.png)
+![**Figure 3**. Setting up ortholog database to search in](gVolante2.png)
 
 
 ## Transcript quantification
@@ -79,6 +81,10 @@ align_and_estimate_abundance.pl --SS_lib_type RF --est_method kallisto --transcr
 Apart from *kallisto_output* folder it will also generate two additional files:
 *Trinity.filtered.fasta.gene_trans_map*  and *Trinity.filtered.fasta.kallisto_idx*
 
+
+``` bash
+align_and_estimate_abundance.pl --SS_lib_type RF --est_method kallisto --transcripts Trinity.filtered.fasta --seqType fq --left data_filtered/<your_number>.R1_val_1.fq.gz --right data_filtered/<your_number>.R2_val_2.fq.gz --output_dir kallisto_output --thread_count 2 --trinity_mode --prep_reference
+```
 
 ## Transcript annotation
 ``` bash
@@ -123,14 +129,10 @@ Load blastp, blastx and pfam results
 ``` bash
 Trinotate Trinotate.sqlite LOAD_swissprot_blastp blastp.outfmt6
 Trinotate Trinotate.sqlite LOAD_swissprot_blastx blastx.outfmt6
-Trinotate Trinotate.sqlite LOAD_pfam TrinotatePFAM.out
+#Trinotate Trinotate.sqlite LOAD_pfam TrinotatePFAM.out
 ```
 
 Generate the report:
-``` bash
-Trinotate Trinotate.sqlite report > trinotate_annotation_report.xls
-```
-
 ``` bash
 Trinotate Trinotate.sqlite report > trinotate_annotation_report.xls
 ```
@@ -154,7 +156,7 @@ Trinotate_get_feature_name_encoding_attributes.pl \
 
 Update expession matrix with gene names:
 ``` bash
-rename_matrix_feature_identifiers.pl Trinity_trans.counts.matrix annot_feature_map.txt > Trinity_trans.counts.wAnnot.matrix
+./rename_matrix_feature_identifiers.pl salmon_output/abundance.tsv.genes annot_feature_map.txt > Trinity_trans.counts.wAnnot.matrix
 ``
 
 
