@@ -226,7 +226,9 @@ TRINITY_DN10007_c0_g1   TRINITY_DN10007_c0_g1^MRC1_HUMAN
                                         annot_feature_map.txt > Trinity_trans.counts.wAnnot.matrix
 ```
 ❓ How many genes were annotated? 
+
 ❓ What are the top 10 most expressed genes with defined annotation? 
+
 ❓ Given the information about the most expressed genes in the dataset, make a guess about the tissue type from which your reads were derived. 
 
 
@@ -241,6 +243,7 @@ Trinotate Trinotate.sqlite LOAD_pfam TrinotatePFAM.out
 ```
 
 ▶ Generate a trinotate report again using `Trinotate Trinotate.sqlite report`. 
+
 ❓ Report the number of features with annotated Pfam domains.
 
 
