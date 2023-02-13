@@ -1,4 +1,4 @@
-# De-Novo transcriptome assembly and annotation
+# De Novo transcriptome assembly and annotation
 
 ![**Figure 1**. *Rana Amurensis*](rana-amurensis.webp)
 
@@ -70,11 +70,11 @@ Trinity has `TrinityStats.pl` script to compute basic assembly statistics, inclu
 ``` bash
 TrinityStats.pl  Trinity.fasta
 ```
-❓ How many trinity 'genes' and 'transcripts' did you get? (0.5 points)
+❓ How many trinity 'genes' and 'transcripts' did you get? 
 
 
 ## Transcript filtering
-Now we want to filter out short redundant contigs that were erroneously assembled by Trinity. `CD-HIT` tool calculates transcript similarity values and merge transcripts based on similarity threshold of 90%.  
+Now we want to filter out short redundant contigs that were erroneously assembled by Trinity. `CD-HIT` tool calculates transcript similarity values and merge transcripts based on similarity threshold of 98%.  
 ``` bash
 cd-hit-est -o cdhit -c 0.98 -i trinity_out_dir/Trinity.fasta -p 1 -d 0 -b 3 -T 2 -M 1000
 ```
@@ -90,7 +90,7 @@ Run QC script on filtered assembly again:
 TrinityStats.pl  Trinity.filtered.fasta
 ```
 
-❓ How many trinity 'transcripts' were filtered out from the assembly? (0.5 points)
+❓ How many trinity 'transcripts' were filtered out from the assembly? 
 
 ## Assembly completeness with gVolante
 To assess completeness of the obtained assembly we will use `gVolante` web tool. Transfer filtered .fasta transcriptome to your local machine and then open https://gvolante.riken.jp/analysis.html. 
@@ -103,7 +103,7 @@ Upload your .fasta file, it may take few minutes:
 
 ![**Figure 3**. Setting up ortholog database to search in](gVolante2.png)
 
-❓ Report BUSCO scores (*Complete and single-copy*, *Complete and duplicated*, *Fragmented*, or *Missing BUSCOs*) and a number of assembly transcripts that are > 1K in their length? (0.5 points)
+❓ Report BUSCO scores (*Complete and single-copy*, *Complete and duplicated*, *Fragmented*, or *Missing BUSCOs*) and a number of assembly transcripts that are > 1K in their length.
 
 
 ## Transcript quantification
@@ -193,7 +193,7 @@ extract_GO_assignments_from_Trinotate_xls.pl  \
         --Trinotate_xls trinotate_annotation_report.xls \
         -G --include_ancestral_terms > go_annotations.txt
 ```
-▶ Explore the obtained *go_annotations.txt* files
+▶ Explore the obtained *go_annotations.txt* file
 
 
 ## Integrating expression data and annotation
@@ -220,24 +220,32 @@ TRINITY_DN10006_c0_g1_i2        TRINITY_DN10006_c0_g1_i2^NDUBB_CRIGR
 TRINITY_DN10007_c0_g1   TRINITY_DN10007_c0_g1^MRC1_HUMAN
 ```
 
-
 ▶ Update expession matrix with gene names:
 ``` bash
 /home/d.smirnov/homework5/rename_matrix_feature_identifiers.pl salmon_output/abundance.tsv.genes \
                                         annot_feature_map.txt > Trinity_trans.counts.wAnnot.matrix
 ```
-❓ How many genes were annotated? (1 point)
+❓ How many genes were annotated? 
+❓ What are the top 10 most expressed genes with defined annotation? 
+❓ Given the information about the most expressed genes in the dataset, make a guess about the tissue type from which your reads were derived. 
 
-## Optional task 
 
-
+## Optional task 1
+In addition to Blast results perform `hmmscan` search for protein domains from the Pfam database. Run the following line in a screen session:
 ``` bash
 hmmscan --cpu 2 --domtblout TrinotatePFAM.out Pfam-A.hmm Trinity.filtered.fasta.transdecoder_dir/longest_orfs.pep > pfam.log
 ```
-
+▶ Then upload obtained TrinotatePFAM.out file into already created *Trinotate.sqlite* file:
 ``` bash
 Trinotate Trinotate.sqlite LOAD_pfam TrinotatePFAM.out
 ```
+
+▶ Generate a trinotate report again using `Trinotate Trinotate.sqlite report`. 
+❓ Report the number of features with annotated Pfam domains.
+
+
+## Optional task 2
+▶ Visualize Gene Ontology categories from *go_annotations.txt* file by the corresponding subgroups (Biological Process, Molecular Function, Cellular Components). X axis should correspond to the category name, Y axis is for number of genes from the assembly, that are releted to the particular category.
 
 
 
@@ -259,13 +267,11 @@ When you complete all the tasks please upload to Canvas:
 How it will be graded:
 * The maximum is 10 points.
 
-* Optional task gives you 2 extra points
+* Optional tasks gives you 2 extra points
 
 * For missing step - minus 5 points.
 
 * If the report/code is missing - 0 points.
-
-* For each missing figure/plot - minus 2 points.
 
 * For each missing answer to ❓ - minus 2 points.
 
