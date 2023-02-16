@@ -23,7 +23,7 @@ conda activate trinity
 
 The first step is to remove adapters and low-quality reads from the raw .fastq files. To do this, run `TrimGalore` tool: 
 ``` bash
-trim_galore --cores 2 --paired --gzip --fastqc --fastqc_args "-t 2" --output_dir data_filtered data/1.R1.fq.gz data/1.R2.fq.gz
+trim_galore --cores 2 --paired --gzip --fastqc --fastqc_args "-t 2" --output_dir data_filtered data/<your_number>.R1.fq.gz data/<your_number>.R2.fq.gz
 ```
 where `--fastqc` argument means that we also want to perform quality assesement of filtered reads via `FastQC` using two computational cores (as specified by `--fastqc_args "-t 2"`).
 
@@ -33,7 +33,7 @@ This is the most crucial and time consuming step in the analysis. It might take 
 
 ▶ Create your screen session:
 ``` bash
-screen -r <session name>
+screen -S <session name>
 ```
 
 ▶ Run Trinity:
@@ -222,7 +222,7 @@ TRINITY_DN10007_c0_g1   TRINITY_DN10007_c0_g1^MRC1_HUMAN
 
 ▶ Update expession matrix with gene names:
 ``` bash
-/home/d.smirnov/homework5/rename_matrix_feature_identifiers.pl salmon_output/abundance.tsv.genes \
+/home/d.smirnov/homework5/rename_matrix_feature_identifiers.pl kallisto_output/abundance.tsv.genes \
                                         annot_feature_map.txt > Trinity_trans.counts.wAnnot.matrix
 ```
 ❓ How many genes were annotated? 
