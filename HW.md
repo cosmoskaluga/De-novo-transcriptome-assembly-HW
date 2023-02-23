@@ -241,7 +241,7 @@ hmmscan --cpu 2 --domtblout TrinotatePFAM.out Pfam-A.hmm Trinity.filtered.fasta.
 **Update**: instead of `hmmscan` tool that appeared to be extremely slow you can try `hmmsearch`:
 ``` bash
 hmmsearch --cpu 2 -o /dev/null/ --domtblout hmmsearch.tmp Pfam-A.hmm Trinity.filtered.fasta.transdecoder_dir/longest_orfs.pep
-awk 'BEGIN{OFS=FS=" "} NR<=3{print}; NR>3{tmp=$1; $1=$4; $4=tmp; tmp=$2; $2=$5; $5=tmp; print} hmmsearch.tmp > TrinotatePFAM.out
+awk 'BEGIN{OFS=FS=" "} NR<=3{print}; NR>3{tmp=$1; $1=$4; $4=tmp; tmp=$2; $2=$5; $5=tmp; print}' hmmsearch.tmp > TrinotatePFAM.out
 ```
 see a corresponding [github issue](https://github.com/TransDecoder/TransDecoder/issues/94) for more detailes.
 
